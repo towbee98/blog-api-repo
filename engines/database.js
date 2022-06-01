@@ -16,7 +16,7 @@ const ConnectDB = (cb) => {
       }
     );
   } catch (error) {
-    return new CreateError(500, error.message);
+    console.log(error);
   }
 };
 
