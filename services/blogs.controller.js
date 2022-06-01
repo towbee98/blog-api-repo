@@ -53,12 +53,11 @@ exports.CreateBlog = async (req, res, next) => {
 exports.UpdateBlog = async (req, res, next) => {
   try {
     const blogID = req.params.id;
-    const { title, category, content } = req.body;
-    const updatedStory = Blogs.findByIdAndUpdate(
-      blogID,
-      { title, category, content },
-      { new: true, runValidators: true }
-    );
+    const update = { ...req.body };
+    const updatedStory = await Blogs.findByIdAndUpdate(blogID, update, {
+      new: true,
+      runValidators: true,
+    });
     if (!updatedStory) return next(new CreateError(400, "Blog not found"));
     res.status(200).json({
       status: "success",

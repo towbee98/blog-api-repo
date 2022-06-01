@@ -3,12 +3,13 @@ const GlobalErrorHandler = require("./services/errorHandler");
 const CreateError = require("./utils/ErrorClass");
 const indexRouter = require("./routes/index");
 const ConnectDB = require("./engines/database");
-const PORT = 3400;
+const config = require("./config/env");
+const PORT = config.PORT;
 const app = express();
 
 app.use(express.json());
 app.use("/api/v1", indexRouter);
-
+console.log(config.ENV);
 app.use("/*", (req, res, next) => {
   next(new CreateError(404, "Route not found"));
 });
