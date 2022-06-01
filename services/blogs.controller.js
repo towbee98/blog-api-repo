@@ -3,9 +3,16 @@ const CreateError = require("./../utils/ErrorClass");
 
 exports.GetAllBlogs = async (req, res, next) => {
   try {
-    // const query = req.query;
-    const stories = await Blogs.find().select("-__v");
-    //console.log(stories);
+    const queryObj = { ...req.query };
+    //Filter out the query parameters
+    const allowedFields = ["category", "title"];
+    Object.keys(queryObj).forEach((el) => {
+      if (!allowedFields.includes(el) || !queryObj[el]) delete queryObj[el];
+    });
+    const stories = await Blogs.find(queryObj)
+      .select("-__v")
+      .sort({ createdAt: "desc" });
+    // console.log(stori);
     res.status(200).json({
       status: "success",
       length: stories.length,
