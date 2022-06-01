@@ -9,10 +9,11 @@ exports.GetAllBlogs = async (req, res, next) => {
     Object.keys(queryObj).forEach((el) => {
       if (!allowedFields.includes(el) || !queryObj[el]) delete queryObj[el];
     });
+    //Find and sort the data being queried
     const stories = await Blogs.find(queryObj)
       .select("-__v")
       .sort({ createdAt: "desc" });
-    // console.log(stori);
+
     res.status(200).json({
       status: "success",
       length: stories.length,

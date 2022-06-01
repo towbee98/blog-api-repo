@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const BlogController = require("../services/blogs.controller");
+const BlogController = require("../controllers/blogs.controller");
 
 router
   .route("/")

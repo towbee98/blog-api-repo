@@ -1,5 +1,5 @@
 const express = require("express");
-const GlobalErrorHandler = require("./services/errorHandler");
+const GlobalErrorHandler = require("./controllers/errorHandler");
 const CreateError = require("./utils/ErrorClass");
 const indexRouter = require("./routes/index");
 //const BlogRouter = require("./routes/blog.routes");
