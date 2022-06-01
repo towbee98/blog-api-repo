@@ -3,17 +3,10 @@ const config = require("../config/env");
 //const CreateError = require("../utils/ErrorClass");
 const ConnectDB = (cb) => {
   try {
-    mongoose.connect(
-      `${config.MONGO_URI}`,
-      {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      },
-      () => {
-        console.log("Database connected succesfully");
-        cb();
-      }
-    );
+    mongoose.connect(config.MONGO_URI, {}, () => {
+      console.log("Database connected succesfully");
+      cb();
+    });
   } catch (error) {
     console.log(error);
   }

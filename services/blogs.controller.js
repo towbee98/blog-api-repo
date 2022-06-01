@@ -3,8 +3,9 @@ const CreateError = require("./../utils/ErrorClass");
 
 exports.GetAllBlogs = async (req, res, next) => {
   try {
-    //const query=req.query;
+    // const query = req.query;
     const stories = await Blogs.find().select("-__v");
+    console.log(stories);
     res.status(200).json({
       status: "success",
       length: stories.length,
