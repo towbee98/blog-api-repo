@@ -1,11 +1,10 @@
 const mongoose = require("mongoose");
 const config = require("../config/env");
-const CreateError = require("../utils/ErrorClass");
-
+//const CreateError = require("../utils/ErrorClass");
 const ConnectDB = (cb) => {
   try {
     mongoose.connect(
-      config.MONGO_URI,
+      `${config.MONGO_URI}`,
       {
         useNewUrlParser: true,
         useUnifiedTopology: true,
