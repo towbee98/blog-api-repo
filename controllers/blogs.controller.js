@@ -29,7 +29,7 @@ exports.GetAllBlogs = async (req, res, next) => {
 
 exports.GetABlog = async (req, res, next) => {
   try {
-    const blogID = req.params.id;
+    const blogID = req.params.id.trim();
     if (!blogID) return next(new CreateError(400, "Specify a valid blog id"));
     const story = await Blogs.findById(blogID);
     if (!story) return next(new CreateError(400, "Blog not found "));

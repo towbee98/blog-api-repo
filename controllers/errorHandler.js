@@ -10,7 +10,7 @@ const handleDuplicateError = (err) => {
   const extractedDuplicateValue = err.message.match(
     /(?<=(["']\b))(?:(?=(\\?))\2.)*?(?=\1)/g
   )[0];
-  console.log(extractedDuplicateValue);
+  //console.log(extractedDuplicateValue);
   return new AppError(
     400,
     `\'${extractedDuplicateValue}\' already exists . Try using another value.`
