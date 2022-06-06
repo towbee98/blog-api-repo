@@ -7,9 +7,11 @@ exports.GetAllBlogs = async (req, res, next) => {
     //Filter out the query parameters
     const allowedFields = ["category", "title"];
     Object.keys(queryObj).forEach((el) => {
+      queryObj[el] = queryObj[el].trim().toLowerCase();
       if (!allowedFields.includes(el) || !queryObj[el]) delete queryObj[el];
     });
     //Find and sort the data being queried
+    // console.log(queryObj);
     const stories = await Blogs.find(queryObj)
       .select("-__v")
       .sort({ createdAt: "desc" });
@@ -21,7 +23,7 @@ exports.GetAllBlogs = async (req, res, next) => {
       message: "Blog stories successfully retrieved",
     });
   } catch (error) {
-    next(new CreateError(400, error.message));
+    return;
   }
 };
 
@@ -37,13 +39,18 @@ exports.GetABlog = async (req, res, next) => {
       message: "Blog successfully fetched",
     });
   } catch (error) {
+    // console.log(error.kind);
+    if (error.kind === "ObjectId")
+      return next(new CreateError(404, "Blog not found"));
     return next(new CreateError(400, error.message));
   }
 };
 
 exports.CreateBlog = async (req, res, next) => {
   try {
-    const { title, category, content } = req.body;
+    const data = req.body;
+    Object.keys(data).forEach((el) => (data[el] = data[el].trim()));
+    const { title, category, content } = data;
     // console.log(title, category, content);
     const blog = await Blogs.create({ title, category, content });
     //console.log(blog);
@@ -55,7 +62,7 @@ exports.CreateBlog = async (req, res, next) => {
       message: "Blog uploaded succssfully",
     });
   } catch (error) {
-    next(new CreateError(400, error.message));
+    next(error);
   }
 };
 
@@ -63,6 +70,7 @@ exports.UpdateBlog = async (req, res, next) => {
   try {
     const blogID = req.params.id;
     const update = { ...req.body };
+    Object.keys(update).forEach((el) => (update[el] = update[el].trim()));
     const updatedStory = await Blogs.findByIdAndUpdate(blogID, update, {
       new: true,
       runValidators: true,
@@ -74,6 +82,8 @@ exports.UpdateBlog = async (req, res, next) => {
       message: "Story updated successfully",
     });
   } catch (error) {
+    if (error.kind === "ObjectId")
+      return next(new CreateError(404, "Blog not found"));
     next(new CreateError(400, error.message));
   }
 };
@@ -88,6 +98,8 @@ exports.removeBlog = async (req, res, next) => {
       message: "Story deleted successfully",
     });
   } catch (error) {
+    if (error.kind === "ObjectId")
+      return next(new CreateError(404, "Blog not found"));
     return next(new CreateError(400, error.message));
   }
 };
