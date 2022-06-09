@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const slugify = require("slugify");
+const User = require("../models/user");
 
 const BlogSchema = new mongoose.Schema(
   {
@@ -35,6 +36,10 @@ const BlogSchema = new mongoose.Schema(
     content: {
       type: String,
       required: [true, "A blog cannot be empty"],
+    },
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Users",
     },
   },
   { timestamps: true }

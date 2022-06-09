@@ -1,14 +1,15 @@
 const router = require("express").Router();
 const BlogController = require("../controllers/blogs.controller");
+const Auth = require("../middlewares/auth");
 
 router
   .route("/")
   .get(BlogController.GetAllBlogs)
-  .post(BlogController.CreateBlog);
+  .post(Auth.protect, BlogController.CreateBlog);
 router
   .route("/:id")
   .get(BlogController.GetABlog)
-  .patch(BlogController.UpdateBlog)
-  .delete(BlogController.removeBlog);
+  .patch(Auth.protect, BlogController.UpdateBlog)
+  .delete(Auth.protect, BlogController.removeBlog);
 
 module.exports = router;

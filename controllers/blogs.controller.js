@@ -13,9 +13,9 @@ exports.GetAllBlogs = async (req, res, next) => {
     //Find and sort the data being queried
     // console.log(queryObj);
     const stories = await Blogs.find(queryObj)
+      .populate({ path: 'author', select: 'name'})
       .select("-__v")
       .sort({ createdAt: "desc" });
-
     res.status(200).json({
       status: "success",
       length: stories.length,
@@ -23,7 +23,7 @@ exports.GetAllBlogs = async (req, res, next) => {
       message: "Blog stories successfully retrieved",
     });
   } catch (error) {
-    return;
+    next(error);
   }
 };
 
@@ -48,11 +48,12 @@ exports.GetABlog = async (req, res, next) => {
 
 exports.CreateBlog = async (req, res, next) => {
   try {
+    const author = req.user._id;
     const data = req.body;
     Object.keys(data).forEach((el) => (data[el] = data[el].trim()));
     const { title, category, content } = data;
     // console.log(title, category, content);
-    const blog = await Blogs.create({ title, category, content });
+    const blog = await Blogs.create({ title, category, content, author });
     //console.log(blog);
     if (!blog)
       return next(new CreateError(400, "An error occured, Please try again"));
@@ -69,9 +70,10 @@ exports.CreateBlog = async (req, res, next) => {
 exports.UpdateBlog = async (req, res, next) => {
   try {
     const blogID = req.params.id;
+    const author= req.user;
     const update = { ...req.body };
     Object.keys(update).forEach((el) => (update[el] = update[el].trim()));
-    const updatedStory = await Blogs.findByIdAndUpdate(blogID, update, {
+    const updatedStory = await Blogs.findOneAndUpdate({_id:blogID,author:author}, update, {
       new: true,
       runValidators: true,
     });
@@ -91,7 +93,13 @@ exports.UpdateBlog = async (req, res, next) => {
 exports.removeBlog = async (req, res, next) => {
   try {
     const blogID = req.params.id;
-    const removedBlog = await Blogs.findByIdAndDelete(blogID);
+    const user = req.user._id;
+    // const removedBlog = await Blogs.findByIdAndDelete(blogID);
+    const removedBlog = await Blogs.findOneAndDelete({
+      _id: blogID,
+      author: user,
+    });
+
     res.status(204).json({
       status: "success",
       data: removedBlog,

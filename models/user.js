@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const validator = require("validator");
 
 const UserSchema = new mongoose.Schema({
   name: {
@@ -9,6 +11,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: [true, "email cannot be empty"],
     unique: [true, "Email already exist"],
+    validate: {
+      validator: (value) => validator.isEmail(`${value}`),
+      message: "Please enter a valid email",
+    },
   },
   password: {
     type: String,
@@ -30,9 +36,48 @@ const UserSchema = new mongoose.Schema({
       message: "Password must match PasswordConfirm",
     },
   },
+  token: {
+    type: String,
+  },
+  passwordChangedAt: Date,
 });
 
+UserSchema.pre("save", async function (next) {
+  //Check if password was modified
+  if (!this.isModified("password")) return next();
+  //encrypt the password
+  this.password = await bcrypt.hash(this.password, 12);
+  this.passwordConfirm = undefined;
+  next();
+});
 
+UserSchema.pre("save", async function (next) {
+  // Check if password was modified
+  if (!this.isModified("password") || this.isNew) return next();
+  this.passwordChangedAt = Date.now() - 1000;
+  //console.log(this.passwordChangedAt);
+  next();
+});
+
+//This method checks if the password is valid.
+UserSchema.methods.checkPassword = async (password, hashedPassword) => {
+  return await bcrypt.compare(password, hashedPassword);
+};
+
+//This method check if the password was recently changed after JWT was issued.
+//It returns true if password was changed after jwt was issued, else it returns false
+
+UserSchema.methods.changedPasswordAfterToken = async (JwtTimeStamp) => {
+  if (this.passwordChangedAt) {
+    console.log(this.passwordChangedAt);
+    const changedTimeStamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
+    return JwtTimeStamp < changedTimeStamp;
+  }
+  return false;
+};
 
 const User = mongoose.model("Users", UserSchema);
 
