@@ -28,7 +28,7 @@ exports.protect = async (req, res, next) => {
       token,
       config.TOKEN_PHRASE
     );
-    console.log(verifiedToken.iat);
+  
     //3.) Check if the user with the token still exists
     const validUser = await User.findOne({ email: verifiedToken.email });
 
@@ -44,6 +44,6 @@ exports.protect = async (req, res, next) => {
     req.user = validUser;
     next();
   } catch (error) {
-    next(error);
+   return  next(error);
   }
 };

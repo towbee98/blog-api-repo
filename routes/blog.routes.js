@@ -6,6 +6,7 @@ router
   .route("/")
   .get(BlogController.GetAllBlogs)
   .post(Auth.protect, BlogController.CreateBlog);
+router.route("/me").get(Auth.protect,BlogController.getMyBlogs)
 router
   .route("/:id")
   .get(BlogController.GetABlog)

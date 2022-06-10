@@ -3,6 +3,7 @@ const CreateError = require("../utils/ErrorClass");
 const jwt = require("jsonwebtoken");
 const config = require("../config/env");
 
+
 const generateToken = async (email) => {
   return jwt.sign({ email }, config.TOKEN_PHRASE, {
     expiresIn: "4h",
@@ -22,7 +23,7 @@ exports.login = async (req, res, next) => {
       );
 
     //2.Check if the email exists and password match
-    const user = await User.findOne({ email }).select("+password");
+    const user = await User.findOne({ email }).select("-__v +password");
     //console.log(user);
 
     if (!user || !(await user.checkPassword(password, user.password)))
@@ -48,6 +49,7 @@ exports.login = async (req, res, next) => {
   }
 };
 
+
 exports.SignUp = async (req, res, next) => {
   try {
     //1. Get user input and trim it
@@ -61,7 +63,6 @@ exports.SignUp = async (req, res, next) => {
           "All inputs are required, please enter a valid input"
         )
       );
-
     //2. Check if the user email already exsit on the db
     if (await User.findOne({ email }))
       next(new CreateError(400, "Email already exists."));
@@ -88,6 +89,7 @@ exports.SignUp = async (req, res, next) => {
   }
 };
 
+
 exports.forgetPassword = (req, res, next) => {
   try {
     res.status(200).json({
@@ -98,14 +100,17 @@ exports.forgetPassword = (req, res, next) => {
   }
 };
 
+
 exports.getUser =async (req, res, next) => {
   try {
+    //console.log(req.user);
     const userID= req.user._id;
     if(!userID) return next(new CreateError(400,"Please login again"));
-    const user=await  User.findById(userID);
+    const user=await  User.findById(userID).select("-__v")
     if(!user) return next(new CreateError(400,"User not found"));
     res.status(200).json({
-      message: "Route not active yet",
+      status:"success",
+      data:user
     });
   } catch (error) {
     if (error.kind === "ObjectId")
@@ -114,14 +119,26 @@ exports.getUser =async (req, res, next) => {
   }
 };
 
-exports.updateUser = (req, res, next) => {
+
+exports.updateUser =async (req, res, next) => {
   try {
-    const userID=req.user._id;
-    if(!userID) return next(new CreateError(400,"Please login again")) 
+    const userID=req.user._id;   
+    if(!userID) return next(new CreateError(400,"Please login again"));
+    
+    let {name}= req.body; 
+    if(!name) return next(new CreateError(400,"No data to update"))
+    name=name.trim();
+    const updatedUser= await User.findByIdAndUpdate(userID,{name},{new:true,runValidators:true}).select("-__v")
+    res.status(200).json({
+      status:"success",
+      updatedUser,
+      message:"You details have been updated succesfully"
+    })
   } catch (error) {
     next(error);
   }
 };
+
 
 exports.deleteUser = async (req, res, next) => {
   try {
@@ -138,9 +155,11 @@ exports.deleteUser = async (req, res, next) => {
   }
 };
 
+
 exports.getAllUsers = async (req, res, next) => {
+  //console.log(req.user);
   try {
-    const users = await User.find();
+    const users = await User.find().select("-__v");
     res.status(200).json({
       status: "success",
       data: users,
@@ -149,3 +168,7 @@ exports.getAllUsers = async (req, res, next) => {
     next(err);
   }
 };
+
+
+
+

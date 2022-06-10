@@ -1,3 +1,4 @@
+const { response } = require("express");
 const Blogs = require("./../models/blog");
 const CreateError = require("./../utils/ErrorClass");
 
@@ -14,7 +15,7 @@ exports.GetAllBlogs = async (req, res, next) => {
     // console.log(queryObj);
     const stories = await Blogs.find(queryObj)
       .populate({ path: 'author', select: 'name'})
-      .select("-__v")
+      .select("-__v -slug")
       .sort({ createdAt: "desc" });
     res.status(200).json({
       status: "success",
@@ -31,7 +32,7 @@ exports.GetABlog = async (req, res, next) => {
   try {
     const blogID = req.params.id.trim();
     if (!blogID) return next(new CreateError(400, "Specify a valid blog id"));
-    const story = await Blogs.findById(blogID);
+    const story = await Blogs.findById(blogID).select("-__v -slug")
     if (!story) return next(new CreateError(400, "Blog not found "));
     res.status(200).json({
       status: "success",
@@ -70,13 +71,15 @@ exports.CreateBlog = async (req, res, next) => {
 exports.UpdateBlog = async (req, res, next) => {
   try {
     const blogID = req.params.id;
-    const author= req.user;
+    if(!blogID) return next(new CreateError(400,"Specify a valid blog id"))
+    const author= req.user._id;
+    if(!author) return next(new CreateError(400,"Sorry,Please login again"));
     const update = { ...req.body };
     Object.keys(update).forEach((el) => (update[el] = update[el].trim()));
     const updatedStory = await Blogs.findOneAndUpdate({_id:blogID,author:author}, update, {
       new: true,
       runValidators: true,
-    });
+    }).select("-_v")
     if (!updatedStory) return next(new CreateError(400, "Blog not found"));
     res.status(200).json({
       status: "success",
@@ -89,6 +92,21 @@ exports.UpdateBlog = async (req, res, next) => {
     next(new CreateError(400, error.message));
   }
 };
+
+exports.getMyBlogs= async (req,res,next)=>{
+  try {
+    const author= req.user._id;
+    const blogs=await Blogs.find({author}).select("-__v -author")
+      .sort({ createdAt: "desc" });;
+      if(!blogs) next(new CreateError(404,"Blogs not found "));
+      res.status(200).json({
+        status:"success",
+        data:blogs
+      })
+  } catch (error) {
+    next(error)
+  }
+}
 
 exports.removeBlog = async (req, res, next) => {
   try {
