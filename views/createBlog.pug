@@ -1,0 +1,22 @@
+html 
+    head 
+        block head
+            title= title 
+    body 
+        include .partials
+        block content
+            h1 Upload a story 
+            form(action='#', method='post')
+                label(for='Title') Title
+                br
+                input(type='text', name='title')
+                br
+                label(for='category') Category
+                br
+                input(type='text', name='category')
+                br
+                label(type='content') Content 
+                br
+                textarea(name="content", cols="30", rows="10") 
+                br
+                input(type='submit', value='Submit')

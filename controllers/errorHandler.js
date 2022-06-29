@@ -48,6 +48,7 @@ const GlobalErrorhandler = (err, req, res, next) => {
       message: err.message,
     });
   } else {
+    // console.log(err.statusCode);
     res.status(err.statusCode).json({
       error: err,
       status: err.status,

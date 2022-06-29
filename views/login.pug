@@ -1,0 +1,21 @@
+html 
+    head 
+        block head
+            title= title 
+    body
+        include .partials
+        block  content
+            h1= message
+            form(action='', method='post')
+                label(for='email') Email 
+                br
+                input(type='email', name='email')
+                br
+                label(for='password') Password 
+                br
+                input(type='password', name='password')
+                br
+                input(type='submit', value='login')
+                br
+                a(href="/auth/google")
+                    button(type='button') login with Google

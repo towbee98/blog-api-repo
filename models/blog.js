@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const slugify = require("slugify");
-const User = require("../models/user");
 
 const BlogSchema = new mongoose.Schema(
   {
@@ -40,6 +39,20 @@ const BlogSchema = new mongoose.Schema(
     author: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Users",
+    },
+    // comments: [
+    //   {
+    //     content: String,
+    //     createdBy: {
+    //       type: mongoose.Schema.Types.ObjectId,
+    //       ref: "Users",
+    //     },
+    //   },
+    //   { timestamps: true },
+    // ],
+    comments: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "Comment",
     },
   },
   { timestamps: true }

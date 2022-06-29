@@ -1,0 +1,20 @@
+html 
+    head 
+        block head
+            title= title 
+    body      
+        block content
+                include .partials
+                h1= message
+                each story in stories
+                    // post block
+                    .post-content
+                        h3
+                            a.title(href='#')=story.title
+                        .meta
+                            span.meta-date= new Date(story.createdAt).toLocaleDateString()
+                            span | &nbsp; &nbsp;
+                            span.meta-admin By 
+                                a.meta-link(href='#')= story.author.name
+                            
+                        a.btn-link(href='#') read more
